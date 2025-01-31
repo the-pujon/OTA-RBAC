@@ -12,7 +12,7 @@ export const cloudinaryDestroy = (publicId: string): Promise<any> => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader.destroy(publicId, (err, result) => {
       if (err) {
-        console.error("Error deleting image", err);
+        // console.error("Error deleting image", err);
         reject(err);
       } else {
         resolve(result);
