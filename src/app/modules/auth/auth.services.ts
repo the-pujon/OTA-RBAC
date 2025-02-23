@@ -1,6 +1,6 @@
 import  httpStatus  from 'http-status';
-import { IUser } from "./user.interface";
-import UserModel from "./user.model";
+import { IUser } from "./auth.interface";
+import UserModel from "./auth.model";
 import AppError from '../../errors/AppError';
 import configs from '../../configs';
 import { cacheData, deleteCachedData, getCachedData } from '../../utils/redis.utils';

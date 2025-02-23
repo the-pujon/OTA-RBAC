@@ -10,7 +10,7 @@ import jwt, {
 // import config from "../config";
 // import { UserModel } from "../modules/auth/auth.model";
 import { getCachedData } from "../utils/redis.utils";
-import UserModel from "../modules/user/user.model";
+import UserModel from "../modules/auth/auth.model";
 import configs from "../configs";
 
 export const auth = (...requiredRoles: ("admin" | "user")[]) => {

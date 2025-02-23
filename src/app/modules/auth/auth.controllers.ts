@@ -1,6 +1,6 @@
 
 import  httpStatus  from 'http-status';
-import { UserServices } from "./user.services";
+import { UserServices } from "./auth.services";
 import catchAsync from "../../utils/catchAsync.";
 import sendResponse from "../../utils/sendResponse";
 import { cloudinaryUpload } from '../../utils/cloudinaryUpload';
