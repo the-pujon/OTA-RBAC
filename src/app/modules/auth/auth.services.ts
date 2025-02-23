@@ -6,6 +6,8 @@ import configs from '../../configs';
 import { cacheData, deleteCachedData, getCachedData } from '../../utils/redis.utils';
 import { cloudinaryUpload } from '../../utils/cloudinaryUpload';
 import { cloudinaryDestroy } from '../../utils/cloudinaryDelete';
+import { JwtPayload } from 'jsonwebtoken';
+import { createToken, omitPassword } from './auth.utils';
 
 
 const redisCacheKeyPrefix = configs.redis_cache_key_prefix;
@@ -17,7 +19,7 @@ const redisTTL = parseInt(configs.redis_ttl as string);
  * @returns {Promise<IUser>} - A promise that resolves to the newly created user object.
  * @throws {AppError} - If there is an error creating the user, an error with a BAD_REQUEST status is thrown.
  */
-const createUserService =async (payload: IUser) => {
+const signupService =async (payload: IUser) => {
     try{
     const result = await UserModel.create(payload);
    await deleteCachedData(`${redisCacheKeyPrefix}:users`);
@@ -30,6 +32,49 @@ const createUserService =async (payload: IUser) => {
         throw new AppError(httpStatus.BAD_REQUEST, 'Error creating user');
     }
 }
+
+
+
+const loginUserService = async (payload: JwtPayload) => {
+    const user = await UserModel.isUserExist(payload.email);
+  
+    //if user not found
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "This user is not found !");
+    }
+    const isPasswordMatch = await UserModel.isPasswordMatch(
+      payload.password,
+      (await user).password,
+    );
+  
+    if (!isPasswordMatch) {
+      throw new AppError(httpStatus.BAD_REQUEST, "Password is not correct !");
+    }
+  
+    const jwtPayload = {
+      id: user._id,
+      email: user.email,
+      role: user.role as string,
+    };
+  
+    const token = createToken(
+      jwtPayload,
+      configs.jwt_access_secret as string,
+      "10h",
+    );
+    await deleteCachedData(`${configs.redis_cache_key_prefix}:user:${user.email}:token`);
+    await cacheData(
+      `${configs.redis_cache_key_prefix}:user:${user.email}:token`,
+      token,
+      3600 * 10,
+    );
+  
+    const loggedUserWithoutPassword = omitPassword(user);
+  
+    return { token, user: loggedUserWithoutPassword };
+  };
+  
+
 
 /**
  * Retrieves all users from the database.
@@ -176,10 +221,11 @@ const deleteUserService = async (id: string) => {
 
 
 export const UserServices = {
-    createUserService,
+    signupService,
     getUserService,
     getUserByEmail,
     updateUserService,
     deleteUserService,
-    getUserById
+    getUserById,
+    loginUserService
 }
