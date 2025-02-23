@@ -3,22 +3,33 @@ import  httpStatus  from 'http-status';
 import { UserServices } from "./auth.services";
 import catchAsync from "../../utils/catchAsync.";
 import sendResponse from "../../utils/sendResponse";
-import { cloudinaryUpload } from '../../utils/cloudinaryUpload';
+// import { cloudinaryUpload } from '../../utils/cloudinaryUpload';
 import AppError from '../../errors/AppError';
 
-const createUserController = catchAsync(async(req, res) => {
+const signupUserController = catchAsync(async(req, res) => {
     // console.log("here")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const img: any = await cloudinaryUpload(req?.file?.filename as string, req?.file?.path as string);
-    req.body.image = img.secure_url;
-    req.body.imageId = img.public_id;
+    // const img: any = await cloudinaryUpload(req?.file?.filename as string, req?.file?.path as string);
+    // req.body.image = img.secure_url;
+    // req.body.imageId = img.public_id;
 
-    const result = await UserServices.createUserService(req.body);
+    const result = await UserServices.signupService(req.body);
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
         success: true,
         message: 'User created successfully',
         data: result
+    })
+})
+
+const loginUserController = catchAsync(async(req, res) => {
+    const result = await UserServices.loginUserService(req.body);
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'User logged in successfully',
+        data: result,
+        token: result.token
     })
 })
 
@@ -87,10 +98,11 @@ const deleteUserController = catchAsync(async(req, res) => {
 })
 
 export const UserController = {
-    createUserController,
+    signupUserController,
     getUserController,
     getUserByEmailController,
     updateUserController,
     deleteUserController,
-    getUserByIdController
+    getUserByIdController,
+    loginUserController
 }

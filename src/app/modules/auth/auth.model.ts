@@ -13,7 +13,7 @@ const userSchema = new Schema<IUser>({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
   address: { type: String, required: true },
-  image: { type: String, required: false },
+  // image: { type: String, required: false },
   active: { type: Boolean, default: true },
   languages: { type: [String], default: [] },
   phone: { type: String },

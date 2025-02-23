@@ -9,7 +9,7 @@ export interface IUser {
     createdAt?: Date;
     updatedAt?: Date;
     address: string;
-    image?: string;
+    // image?: string;
     active?: boolean;
     languages?: string[];
     phone?: string;
