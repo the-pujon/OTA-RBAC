@@ -106,6 +106,22 @@ const deleteUserController = catchAsync(async(req, res) => {
     })
 })
 
+const refreshTokenController = catchAsync(async(req, res) => {
+    const { refreshToken } = req.cookies;
+    // console.log(refreshToken)
+    if (!refreshToken) {
+        throw new AppError(httpStatus.BAD_REQUEST, 'Refresh token is required');
+    }
+    const result = await UserServices.refreshTokenService(refreshToken);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: 'User logged in successfully', 
+        data: result
+    });
+})
+
 export const UserController = {
     signupUserController,
     getUserController,
@@ -113,5 +129,6 @@ export const UserController = {
     updateUserController,
     deleteUserController,
     getUserByIdController,
-    loginUserController
+    loginUserController,
+    refreshTokenController
 }

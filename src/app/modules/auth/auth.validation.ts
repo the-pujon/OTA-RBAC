@@ -28,3 +28,12 @@ export const userLoginValidationSchema = z.object({
     password: z.string().min(8, "Password must be at least 8 characters"), // Password should be a string with min length
   }),
 });
+
+
+export const refreshTokenValidationSchema = z.object({
+  cookies: z.object({
+    refreshToken: z.string({
+      required_error: 'Refresh token is required!',
+    }),
+  }),
+});

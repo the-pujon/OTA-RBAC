@@ -6,8 +6,9 @@ import configs from '../../configs';
 import { cacheData, deleteCachedData, getCachedData } from '../../utils/redis.utils';
 import { cloudinaryUpload } from '../../utils/cloudinaryUpload';
 import { cloudinaryDestroy } from '../../utils/cloudinaryDelete';
-import { JwtPayload } from 'jsonwebtoken';
+import { JsonWebTokenError, JwtPayload, TokenExpiredError } from 'jsonwebtoken';
 import { createToken, omitPassword } from './auth.utils';
+import jwt from "jsonwebtoken"
 
 
 const redisCacheKeyPrefix = configs.redis_cache_key_prefix;
@@ -35,6 +36,16 @@ const signupService =async (payload: IUser) => {
 
 
 
+/**
+ * Logs a user in and returns an access and refresh token. The user is identified using the email and password passed in the payload.
+ * @param {JwtPayload} payload - The payload to log in the user with.
+ * @returns {Promise<{
+ *   accessToken: string;
+ *   user: Omit<IUser, 'password'>;
+ *   refreshToken: string;
+ * }>} - A promise that resolves to an object containing the access and refresh tokens, and the user object.
+ * @throws {AppError} - If the user is not found, the password is incorrect, or there is an error generating the tokens, an error with a NOT_FOUND, BAD_REQUEST, or INTERNAL_SERVER_ERROR status is thrown.
+ */
 const loginUserService = async (payload: JwtPayload) => {
     const user = await UserModel.isUserExist(payload.email);
   
@@ -77,19 +88,82 @@ const loginUserService = async (payload: JwtPayload) => {
     await cacheData(
       `${configs.redis_cache_key_prefix}:user:${user.email}:token`,
       accessToken,
-      parseInt(configs.jwt_access_expires_in as string),
+      parseInt(configs.jwt_access_expires_in as string) * 24 * 60 * 60,
+      // redisTTL
     );
 
     await cacheData(
       `${configs.redis_cache_key_prefix}:user:${user.email}:refresh_token`,
       refreshToken,
-      parseInt(configs.jwt_refresh_expires_in as string),
+      parseInt(configs.jwt_refresh_expires_in as string) * 24 * 60 * 60,
+      // redisTTL
     );
   
     const loggedUserWithoutPassword = omitPassword(user);
   
     return { accessToken, user: loggedUserWithoutPassword, refreshToken };
   };
+
+
+
+const refreshTokenService = async (token: string) => {
+  if (!token) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "You are not authorized. Login first",
+    );
+  }
+
+
+  try{
+    const decoded = jwt.verify(token, configs.jwt_refresh_secret as string);
+
+    const { email  } = decoded as JwtPayload;
+
+    const cachedToken = await getCachedData(`${configs.redis_cache_key_prefix}:user:${email}:refresh_token`);
+    console.log(cachedToken)
+
+    if (cachedToken !== token) {
+      throw new AppError(httpStatus.UNAUTHORIZED, "Token is not valid");
+    }
+
+    const user = await UserModel.isUserExist(email);
+
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "This user is not found!");
+    }
+
+    const jwtPayload = {
+      id: user._id,
+      email: user.email,
+      role: user.role as string,
+    };
+
+    const accessToken = createToken(
+      jwtPayload,
+      configs.jwt_access_secret as string,
+      configs.jwt_access_expires_in as string,
+    );
+
+    return { accessToken };
+
+  }
+  catch(error){
+    if (error instanceof TokenExpiredError) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Your session has expired. Please login again.",
+      );
+    } else if (error instanceof JsonWebTokenError) {
+      throw new AppError(
+        httpStatus.UNAUTHORIZED,
+        "Invalid token. Please login again.",
+      );
+    }
+    throw new AppError(httpStatus.UNAUTHORIZED, "Token is not valid");
+  }
+
+}
   
 
 
@@ -244,5 +318,6 @@ export const UserServices = {
     updateUserService,
     deleteUserService,
     getUserById,
-    loginUserService
+    loginUserService,
+    refreshTokenService
 }

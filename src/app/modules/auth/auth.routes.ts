@@ -44,5 +44,6 @@ route.put(
 );
 route.delete("/:id", UserController.deleteUserController);
 route.get("/id/:id", UserController.getUserByIdController);
+route.post("/refresh-token", UserController.refreshTokenController);
 
 export const userRoute = route;

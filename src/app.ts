@@ -5,6 +5,7 @@ import express, { Application, NextFunction, Request, Response } from 'express';
 import router from './app/routes';
 // import notFoundRouteHandler from './app/middlewares/notFoundRouteHandler';
 import globalErrorHandler from './app/middlewares/globalErrorHandler';
+import cookieParser from 'cookie-parser';
 
 const app: Application = express();
 
@@ -15,6 +16,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 //start 
 app.use("/api", router);
 app.get('/', (req: Request, res: Response) => {
