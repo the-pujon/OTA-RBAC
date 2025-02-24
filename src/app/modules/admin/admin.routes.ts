@@ -5,7 +5,7 @@ import { AdminController } from "./admin.controller";
 
 const route = Router();
 
-route.put('/:id', auth("admin", "superAdmin"), AdminController.makeAdminController);
-route.delete('/:id', auth("admin", "superAdmin"), AdminController.removeAdminController);
+route.put('/:id', auth( "superAdmin"), AdminController.makeAdminController);
+route.delete('/:id', auth( "superAdmin"), AdminController.removeAdminController);
 
 export const moderatorRoute = route;
