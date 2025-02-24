@@ -5,6 +5,7 @@ import catchAsync from "../../utils/catchAsync.";
 import sendResponse from "../../utils/sendResponse";
 // import { cloudinaryUpload } from '../../utils/cloudinaryUpload';
 import AppError from '../../errors/AppError';
+import configs from '../../configs';
 
 const signupUserController = catchAsync(async(req, res) => {
     // console.log("here")
@@ -22,14 +23,22 @@ const signupUserController = catchAsync(async(req, res) => {
     })
 })
 
+
+
 const loginUserController = catchAsync(async(req, res) => {
     const result = await UserServices.loginUserService(req.body);
+
+    res.cookie('refreshToken', result.refreshToken, {
+        secure: configs.NODE_ENV === 'production',
+        httpOnly: true,
+      });
+
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
         message: 'User logged in successfully',
-        data: result,
-        token: result.token
+        data: result.user,
+        token: result.accessToken
     })
 })
 

@@ -22,7 +22,7 @@ const redisTTL = parseInt(configs.redis_ttl as string);
 const signupService =async (payload: IUser) => {
     try{
     const result = await UserModel.create(payload);
-   await deleteCachedData(`${redisCacheKeyPrefix}:users`);
+    await deleteCachedData(`${redisCacheKeyPrefix}:users`);
     return result;
     }
     catch(err) {
@@ -57,21 +57,38 @@ const loginUserService = async (payload: JwtPayload) => {
       role: user.role as string,
     };
   
-    const token = createToken(
+    const accessToken = createToken(
       jwtPayload,
       configs.jwt_access_secret as string,
-      "10h",
+      configs.jwt_access_expires_in as string,
     );
-    await deleteCachedData(`${configs.redis_cache_key_prefix}:user:${user.email}:token`);
+
+    const refreshToken = createToken(
+      jwtPayload,
+      configs.jwt_refresh_secret as string,
+      configs.jwt_refresh_expires_in as string,
+    );
+
+    // Delete the old tokens from the cache
+    await deleteCachedData(`${configs.redis_cache_key_prefix}:user:${user.email}:access_token`);
+    await deleteCachedData(`${configs.redis_cache_key_prefix}:user:${user.email}:refresh_token`);
+
+    //cache the tokens
     await cacheData(
       `${configs.redis_cache_key_prefix}:user:${user.email}:token`,
-      token,
-      3600 * 10,
+      accessToken,
+      parseInt(configs.jwt_access_expires_in as string),
+    );
+
+    await cacheData(
+      `${configs.redis_cache_key_prefix}:user:${user.email}:refresh_token`,
+      refreshToken,
+      parseInt(configs.jwt_refresh_expires_in as string),
     );
   
     const loggedUserWithoutPassword = omitPassword(user);
   
-    return { token, user: loggedUserWithoutPassword };
+    return { accessToken, user: loggedUserWithoutPassword, refreshToken };
   };
   
 

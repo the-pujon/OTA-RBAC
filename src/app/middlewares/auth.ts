@@ -13,7 +13,7 @@ import { getCachedData } from "../utils/redis.utils";
 import UserModel from "../modules/auth/auth.model";
 import configs from "../configs";
 
-export const auth = (...requiredRoles: ("admin" | "user")[]) => {
+export const auth = (...requiredRoles: ("admin" | "moderator" | "superAdmin")[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(" ")[1];
 

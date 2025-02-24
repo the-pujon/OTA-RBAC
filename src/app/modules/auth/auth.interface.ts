@@ -5,11 +5,11 @@ export interface IUser {
     name: string;
     email: string;
     password: string;
-    role?: 'admin' | 'user';
+    role?: 'admin' | 'moderator' | 'superAdmin';
     createdAt?: Date;
     updatedAt?: Date;
     address: string;
-    // image?: string;
+    image?: string;
     active?: boolean;
     languages?: string[];
     phone?: string;

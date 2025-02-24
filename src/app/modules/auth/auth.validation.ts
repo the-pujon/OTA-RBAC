@@ -21,3 +21,10 @@ export const userUpdateValidationSchema = z.object({
     address: z.string().min(1, "Address is required").optional(),
   }),
 });
+
+export const userLoginValidationSchema = z.object({
+  body: z.object({
+    email: z.string().email("Invalid email format"), // Email should be a valid email string
+    password: z.string().min(8, "Password must be at least 8 characters"), // Password should be a string with min length
+  }),
+});

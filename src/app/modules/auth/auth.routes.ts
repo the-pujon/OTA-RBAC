@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { UserController } from "./auth.controllers";
 import {
+  userLoginValidationSchema,
   userUpdateValidationSchema,
   userValidationSchema,
 } from "./auth.validation";
@@ -26,7 +27,7 @@ const route = Router();
 
 route.post('/signup', validateRequest(userValidationSchema), UserController.signupUserController);
 
-route.post('/login', UserController.loginUserController);
+route.post('/login', validateRequest(userLoginValidationSchema), UserController.loginUserController);
 
 
 route.get("/", UserController.getUserController);
