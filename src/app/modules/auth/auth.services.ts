@@ -12,7 +12,7 @@ import jwt from "jsonwebtoken"
 
 
 const redisCacheKeyPrefix = configs.redis_cache_key_prefix;
-const redisTTL = parseInt(configs.redis_ttl as string);
+// const redisTTL = parseInt(configs.redis_ttl as string);
 
 /**
  * Creates a new user in the database.
@@ -86,7 +86,7 @@ const loginUserService = async (payload: JwtPayload) => {
 
     //cache the tokens
     await cacheData(
-      `${configs.redis_cache_key_prefix}:user:${user.email}:token`,
+      `${configs.redis_cache_key_prefix}:user:${user.email}:access_token`,
       accessToken,
       parseInt(configs.jwt_access_expires_in as string) * 24 * 60 * 60,
       // redisTTL
@@ -176,18 +176,18 @@ const getUserService = async () => {
 
     try{
         //get cached data from the redis
-        const cachedKey = `${redisCacheKeyPrefix}:users`;
-        const cachedData = await getCachedData(cachedKey);
+        // const cachedKey = `${redisCacheKeyPrefix}:users`;
+        // const cachedData = await getCachedData(cachedKey);
 
-        // console.log(cachedData);
+        // // console.log(cachedData);
 
-        if(cachedData){
-            return cachedData;
-        }
+        // if(cachedData){
+        //     return cachedData;
+        // }
 
         const result =await UserModel.find();
         //cache the data
-       await cacheData(cachedKey, result, redisTTL);
+      //  await cacheData(cachedKey, result, redisTTL);
         return result;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

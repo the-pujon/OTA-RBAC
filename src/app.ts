@@ -10,12 +10,57 @@ import cookieParser from 'cookie-parser';
 const app: Application = express();
 
 app.use(express.json());
+// app.use(
+//   cors({
+//     origin: 'http://192.168.68.105:3000',
+//     credentials: true,
+//   }),
+// );
+
+
+// app.use(
+//   cors({
+//     origin: [
+//       process.env.FRONTEND_URL || 'http://localhost:3000', 
+//       'http://192.168.68.150:3000', 
+//       'http://localhost:3000',
+      
+//     ],
+//     credentials: true,
+//   })
+// );
+
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:3000',
+  /^http:\/\/192\.168\.68\.\d+:3000$/ // This will match any IP in the 192.168.68.x subnet
+];
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL as string,
-    credentials: true,
-  }),
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl requests)
+      if (!origin) return callback(null, true);
+      
+      // Check if the origin is allowed
+      const allowed = allowedOrigins.some(allowedOrigin => {
+        if (allowedOrigin instanceof RegExp) {
+          return allowedOrigin.test(origin);
+        }
+        return allowedOrigin === origin;
+      });
+      
+      if (allowed) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true
+  })
 );
+
 app.use(cookieParser());
 //start 
 app.use("/api", router);

@@ -7,5 +7,6 @@ const route = Router();
 
 route.put('/:id', auth( "superAdmin"), AdminController.makeAdminController);
 route.delete('/:id', auth( "superAdmin"), AdminController.removeAdminController);
+route.get("/", auth( "superAdmin"),AdminController.getAdminController)
 
-export const moderatorRoute = route;
+export const adminRoute = route;

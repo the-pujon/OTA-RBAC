@@ -30,8 +30,21 @@ const removeModeratorController = catchAsync(async (req, res)=>{
 
 
 
+const getModeratorController = catchAsync(async (req, res)=>{
+    const result = await ModeratorService.getModeratorService()
+
+    sendResponse(res,{
+        statusCode: httpStatusCode.OK,
+        success: true,
+        message: 'Admin retrieved successfully',
+        data: result
+    })
+})
+
+
 
 export const ModeratorController = {
     makeModeratorController,
-    removeModeratorController
+    removeModeratorController,
+    getModeratorController,
 }

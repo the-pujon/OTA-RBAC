@@ -7,6 +7,7 @@ import {
 } from "./auth.validation";
 import validateRequest from "../../middlewares/validateRequest";
 import { uploadAndCompress } from "../../utils/fileUpload";
+import { auth } from "../../middlewares/auth";
 // import { upload } from "../../utils/fileUpload";
 
 const route = Router();
@@ -30,7 +31,7 @@ route.post('/signup', validateRequest(userValidationSchema), UserController.sign
 route.post('/login', validateRequest(userLoginValidationSchema), UserController.loginUserController);
 
 
-route.get("/", UserController.getUserController);
+route.get("/", auth("superAdmin", "admin"), UserController.getUserController);
 route.get("/:email", UserController.getUserByEmailController);
 route.put(
   "/:id",

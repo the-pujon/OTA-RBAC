@@ -7,8 +7,9 @@ import { IPost } from './post.interface';
 const postSchema = new Schema<IPost>({
     title: { type: String, required: true },
     content: { type: String, required: true },
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
+    tags: [{ type: String }]
+},{
+    timestamps: true
 });
 
 // Create and export the model

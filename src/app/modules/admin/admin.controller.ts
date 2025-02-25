@@ -6,6 +6,7 @@ import httpStatusCode from 'http-status';
 const makeAdminController = catchAsync(async (req, res)=>{
     const id = req.params.id
     const result = await AdminService.makeAdminService(id)
+    console.log(result)
 
     sendResponse(res,{
         statusCode: httpStatusCode.OK,
@@ -20,6 +21,8 @@ const removeAdminController = catchAsync(async (req, res)=>{
     const id = req.params.id
     const result = await AdminService.removeAdminService(id)
 
+    console.log(result)
+
     sendResponse(res,{
         statusCode: httpStatusCode.OK,
         success: true,
@@ -29,9 +32,22 @@ const removeAdminController = catchAsync(async (req, res)=>{
 })
 
 
+const getAdminController = catchAsync(async (req, res)=>{
+    const result = await AdminService.getAdminsService()
+
+    sendResponse(res,{
+        statusCode: httpStatusCode.OK,
+        success: true,
+        message: 'Admin retrieved successfully',
+        data: result
+    })
+})
+
+
 
 
 export const AdminController = {
     makeAdminController,
-    removeAdminController
+    removeAdminController,
+    getAdminController
 }

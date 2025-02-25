@@ -37,7 +37,7 @@ async function main() {
 main();
 
 // Export the server and app for Vercel
-export default app;
+// export default app;
 
 // Handle unhandled rejections
 process.on('unhandledRejection', (err) => {

@@ -17,6 +17,8 @@ export const auth = (...requiredRoles: ("admin" | "moderator" | "superAdmin")[])
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization?.split(" ")[1];
 
+    console.log(token)
+
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
@@ -29,9 +31,12 @@ export const auth = (...requiredRoles: ("admin" | "moderator" | "superAdmin")[])
 
       const { email, role } = decoded as JwtPayload;
 
-      const cachedToken = await getCachedData(`sparkle-car-service:user:${email}:token`);
+      console.log(email, role)
+
+      const cachedToken = await getCachedData(`${configs.redis_cache_key_prefix}:user:${email}:access_token`);
 
       if (cachedToken !== token) {
+        console.log("here is cached token", cachedToken)
         throw new AppError(httpStatus.UNAUTHORIZED, "Token is not valid");
       }
 
@@ -42,6 +47,7 @@ export const auth = (...requiredRoles: ("admin" | "moderator" | "superAdmin")[])
       }
 
       if (requiredRoles && !requiredRoles.includes(role)) {
+        console.log("here is a required role")
         throw new AppError(
           httpStatus.UNAUTHORIZED,
           "You have no access to this route",

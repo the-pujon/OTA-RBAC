@@ -10,3 +10,5 @@ router.get('/get', PostController.getAllPostsController);
 router.get('/get/:id', PostController.getPostByIdController);
 router.put('/update/:id', auth("moderator", "superAdmin"), PostController.updatePostController);
 router.delete('/delete/:id',auth("moderator", "superAdmin"), PostController.deletePostController);
+
+export const postRouter = router

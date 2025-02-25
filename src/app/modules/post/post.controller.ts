@@ -9,6 +9,7 @@ import  httpStatus  from 'http-status';
 
  const createPostController = catchAsync(async (req, res) => {
     const post = await PostService.createPostService(req.body);
+    console.log(post)
    sendResponse(res, {
     statusCode: httpStatus.CREATED,
     success: true,

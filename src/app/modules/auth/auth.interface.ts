@@ -5,7 +5,7 @@ export interface IUser {
     name: string;
     email: string;
     password: string;
-    role?: 'admin' | 'moderator' | 'superAdmin';
+    role?: 'admin' | 'moderator' | 'superAdmin'| 'user';
     createdAt?: Date;
     updatedAt?: Date;
     address: string;
